@@ -1,0 +1,36 @@
+#!/bin/sh
+
+set -eu
+
+# Check that we got two arguments
+if [ $# -lt 2 ]; then
+	 echo "Usage: $0 local-path S3-path"
+	 exit 1
+fi
+
+# Switch to repository folder
+cd "${1}"
+
+# Store S3 path
+S3PATH="${2}"
+
+# Get old repodata
+s3cmd get -r "${S3PATH}/repodata" \
+
+# Recreate structure from S3
+s3cmd ls -r "${S3PATH}/" \
+	| sed -n 's#^.*'"${S3PATH}"'/*/\(.*.rpm\)$#\1#p' \
+	| while read rpm
+do
+	mkdir -p "$(dirname "$rpm")"
+	touch "${rpm}"
+done
+
+# Update repo, don't check file stats
+createrepo --update --skip-stat --keep-all-metadata .
+
+# Remove empty files we created earlier
+find . -size 0 -name '*rpm' -exec rm '{}' \;
+
+# Upload new repository data to S3
+s3cmd put -r * "${S3PATH}/"
