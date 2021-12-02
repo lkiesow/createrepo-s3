@@ -18,7 +18,7 @@ S3SECRET_KEY="${4}"
 S3BUCKETPATH="${5}"
 
 
-S3CONFIG=" --access_key=${S3ACCESS_KEY} --secret_key=${S3SECRET_KEY} --host-bucket=${S3BUCKETURL} --host=${S3BUCKETURL}"
+S3CONFIG=" --no-check-certificate --access_key=${S3ACCESS_KEY} --secret_key=${S3SECRET_KEY} --host-bucket=${S3BUCKETURL} --host=${S3BUCKETURL}"
 
 # Get old repodata
 s3cmd get -r "${S3BUCKETPATH}/repodata" ${S3CONFIG} \
