@@ -3,7 +3,7 @@
 set -eu
 
 # Check that we got two arguments
-if [ $# -lt 2 ]; then
+if [ $# -lt 5 ]; then
 	 echo "Usage: $0 local-path S3-path"
 	 exit 1
 fi
@@ -11,15 +11,21 @@ fi
 # Switch to repository folder
 cd "${1}"
 
-# Store S3 path
-S3PATH="${2}"
+# S3 Bucket config
+S3BUCKETURL="${2}"
+S3ACCESS_KEY="${3}"
+S3SECRET_KEY="${4}"
+S3BUCKETPATH="${5}"
+
+
+S3CONFIG= --access_key=$S3ACCESS_KEY --secret_key=$S3SECRET_KEY --host-bucket=$S3BUCKETURL --host=$S3BUCKETURL
 
 # Get old repodata
-s3cmd get -r "${S3PATH}/repodata" \
+s3cmd get -r "${S3BUCKETPATH}/repodata" $S3CONFIG \
 
 # Recreate structure from S3
-s3cmd ls -r "${S3PATH}/" \
-	| sed -n 's#^.*'"${S3PATH}"'/*/\(.*.rpm\)$#\1#p' \
+s3cmd ls S3CONFIG -r "${S3BUCKETPATH}/" \
+	| sed -n 's#^.*'"${S3BUCKETPATH}"'/*/\(.*.rpm\)$#\1#p' \
 	| while read rpm
 do
 	mkdir -p "$(dirname "$rpm")"
@@ -33,4 +39,4 @@ createrepo --update --skip-stat --keep-all-metadata .
 find . -size 0 -name '*rpm' -exec rm '{}' \;
 
 # Upload new repository data to S3
-s3cmd put -r * "${S3PATH}/"
+s3cmd put S3CONFIG -r * "${S3BUCKETPATH}/"

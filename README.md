@@ -44,7 +44,7 @@ Add `xy-0.6.1-1.fc36.x86_64.rpm` to the repository:
 ```sh
 mkdir repository
 cp /path/tp/xy-0.6.1-1.fc36.x86_64.rpm repository/
-createrepo-s3 repository/ s3://my_bucket/repository
+createrepo-s3 /tmp/repofolder/ jasöldkmvi keyaölskjmdf s3.mys3.de s3://myrepobuckets/production
 ```
 
 
@@ -54,3 +54,11 @@ createrepo-s3 repository/ s3://my_bucket/repository
 - This does not deal with concurrency. Simultaneous updates may overwrite each other.
 - This only allows for adding new packages. Updating existing ones does not work.
   You should release a new version anyway ;-)
+
+
+## Command Parameters
+$1 = LOCAL FOLDER "/tmp/repofolder"
+$2 = S3 BUCKETURL "s3.mys3.de"
+$3 = S3 ACCESS_KEY "jasöldkmvi"
+$4 = S3 SECRET_KEY "keyaölskjmdf"
+$5 = S3 BUCKETPATH "myrepobuckets/production"
